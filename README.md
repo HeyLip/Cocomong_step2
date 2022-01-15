@@ -1,6 +1,9 @@
 # cocomong_step2
+=================
 
-A new Flutter project.
+이번 cocomong_step2에서 구현하고자 하는 것은 음식물들을 List로 나타내는 것입니다.
+시작하기에 앞서 cocomong_step2를 완료하지 못하셨으면 아래 url을 참고하세요.
+cocomong_step1: https://github.com/HeyLip/Cocomong-step1
 
 ## Getting Started
 
