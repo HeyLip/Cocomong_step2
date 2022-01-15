@@ -4,7 +4,7 @@
 > 시작하기에 앞서 cocomong_step2를 완료하지 못하셨으면 아래 링크를 참고하세요.   
 > - Link: [cocomong_step1](https://github.com/HeyLip/Cocomong-step1)
 
-## Getting Started
+## 1. 레이아웃 구성
 
 This project is a starting point for a Flutter application.
 
