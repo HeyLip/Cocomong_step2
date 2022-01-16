@@ -147,25 +147,25 @@ late CollectionReference database;
 body: Column(
         children: <Widget>[
           Expanded(
-            child: StreamBuilder<QuerySnapshot>(
-              stream: database.orderBy('expirationDate', descending: false).snapshots(),
+            child: StreamBuilder<QuerySnapshot>(  //Firebase에 Data가 변화되었을 때를 감지하여 출력해주는 부분 입니다.
+              stream: database.orderBy('expirationDate', descending: false).snapshots(), 
               builder: (BuildContext context,
                   AsyncSnapshot<QuerySnapshot> snapshot) {
-                if (snapshot.hasError) {
+                if (snapshot.hasError) { // 만약 Firebase에 읽을 때, 오류가 있으면 화면에 Error를 출력해줍니다.
                   return Center(
                     child: Text('Error: ${snapshot.error}'),
                   );
                 }
-                switch (snapshot.connectionState) {
-                  case ConnectionState.waiting:
+                switch (snapshot.connectionState) { //이 부분은 Connection 상태에 따라 출력을 달리해 주는 곳입니다.
+                  case ConnectionState.waiting: // 아직 Connection 중이면 Loading...을 출력하고,
                     return const Center(
                       child: Text('Loading...'),
                     );
-                  default:
+                  default: // Connection이 되었으면 Firebase에 있는 Data들을 출력합니다.
                     return ListView(
                         padding: const EdgeInsets.all(16.0),
                         children:
-                        _buildListCards(context, snapshot) // Changed code
+                        _buildListCards(context, snapshot) // Firabase로부터 읽어들인 Data를 Card 형식으로 출력해주는 함수 입니다. 
                     );
                 }
               },
@@ -173,6 +173,84 @@ body: Column(
           ),
         ],
       ),
+</code>
+</pre>
+
+- _buildListCards   
+아래의 코드는 _buildListCards 함수를 구현한 것입니다. build라는 Widget위에 이 함수를 구현해줍니다.
+
+<pre>
+<code>
+  List<InkWell> _buildListCards(
+      BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+    final ThemeData theme = Theme.of(context);
+
+    return snapshot.data!.docs.map((DocumentSnapshot document) {
+      DateTime _dateTime =
+      DateTime.parse(document['expirationDate'].toDate().toString());
+      return InkWell(
+        onTap: () {
+          // dialog(document['photoUrl'], document['productName'], _dateTime,
+          //     document['description']);
+        },
+        child: Container(
+            margin: const EdgeInsets.only(bottom: 25),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            decoration: const BoxDecoration(
+              color: Color(0xFFB2DEB8),
+              borderRadius: BorderRadius.all(Radius.circular(15)),
+            ),
+            child: Row(
+              children: [
+                SizedBox(
+                  width: 80,
+                  height: 80,
+                  child: ClipOval(
+                    child:
+                    Image.network(document['photoUrl'], fit: BoxFit.fill),
+                  ),
+                ),
+                const SizedBox(
+                  width: 30,
+                ),
+                SizedBox(
+                  width: 174,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      Text(
+                        document['productName'],
+                        style: theme.textTheme.headline6,
+                        maxLines: 1,
+                      ),
+                      const SizedBox(height: 8.0),
+                      Text(
+                        '${DateFormat('yyyy').format(_dateTime)}.${_dateTime.month}.${_dateTime.day}',
+                        style: theme.textTheme.subtitle2,
+                      ),
+                    ],
+                  ),
+                ),
+                IconButton(
+                    icon: const Icon(
+                      Icons.delete,
+                    ),
+                    iconSize: 30,
+                    color: Colors.white,
+                    onPressed: () async {
+                      database.doc(document.id).delete();
+                      FirebaseStorage.instance
+                          .refFromURL(document['photoUrl'])
+                          .delete();
+                    }),
+              ],
+            )),
+      );
+    }).toList();
+  }
 </code>
 </pre>
 
